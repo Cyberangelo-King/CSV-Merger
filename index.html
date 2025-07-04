@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Merger & Excel Exporter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            line-height: 1.5;
+        }
+        
+        .dark body {
+            background-color: #111827;
+            color: #f3f4f6;
+        }
+        
+        .min-h-screen {
+            min-height: 100vh;
+        }
+        
+        .bg-gray-100 {
+            background-color: #f3f4f6;
+        }
+        
+        .dark .bg-gray-900 {
+            background-color: #111827;
+        }
+        
+        .text-gray-900 {
+            color: #1f2937;
+        }
+        
+        .dark .text-gray-100 {
+            color: #f3f4f6;
+        }
+        
+        .p-4 {
+            padding: 1rem;
+        }
+        
+        .sm\:p-6 {
+            padding: 1.5rem;
+        }
+        
+        .lg\:p-8 {
+            padding: 2rem;
+        }
+        
+        .flex {
+            display: flex;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .justify-center {
+            justify-content: center;
+        }
+        
+        .w-full {
+            width: 100%;
+        }
+        
+        .max-w-4xl {
+            max-width: 56rem;
+        }
+        
+        .rounded-lg {
+            border-radius: 0.5rem;
+        }
+        
+        .shadow-xl {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .dark .bg-gray-800 {
+            background-color: #1f2937;
+        }
+        
+        .border-none {
+            border: none;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .p-6 {
+            padding: 1.5rem;
+        }
+        
+        .text-3xl {
+            font-size: 1.875rem;
+            line-height: 2.25rem;
+        }
+        
+        .font-bold {
+            font-weight: 700;
+        }
+        
+        .text-blue-600 {
+            color: #2563eb;
+        }
+        
+        .dark .text-blue-400 {
+            color: #60a5fa;
+        }
+        
+        .text-gray-600 {
+            color: #4b5563;
+        }
+        
+        .dark .text-gray-400 {
+            color: #9ca3af;
+        }
+        
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+        
+        .space-y-6 > * + * {
+            margin-top: 1.5rem;
+        }
+        
+        .border-2 {
+            border-width: 2px;
+        }
+        
+        .border-dashed {
+            border-style: dashed;
+        }
+        
+        .border-gray-300 {
+            border-color: #d1d5db;
+        }
+        
+        .dark .border-gray-600 {
+            border-color: #4b5563;
+        }
+        
+        .rounded-lg {
+            border-radius: 0.5rem;
+        }
+        
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        
+        .hover\:border-blue-500:hover {
+            border-color: #3b82f6;
+        }
+        
+        .dark .hover\:border-blue-400:hover {
+            border-color: #60a5fa;
+        }
+        
+        .transition-colors {
+            transition-property: background-color, border-color, color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+        
+        .mx-auto {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .h-12 {
+            height: 3rem;
+        }
+        
+        .w-12 {
+            width: 3rem;
+        }
+        
+        .text-gray-400 {
+            color: #9ca3af;
+        }
+        
+        .dark .text-gray-500 {
+            color: #6b7280;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+        
+        .text-lg {
+            font-size: 1.125rem;
+            line-height: 1.75rem;
+        }
+        
+        .font-medium {
+            font-weight: 500;
+        }
+        
+        .text-gray-700 {
+            color: #374151;
+        }
+        
+        .dark .text-gray-300 {
+            color: #d1d5db;
+        }
+        
+        .text-sm {
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
+        
+        .mt-1 {
+            margin-top: 0.25rem;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .space-y-3 > * + * {
+            margin-top: 0.75rem;
+        }
+        
+        .text-xl {
+            font-size: 1.25rem;
+            line-height: 1.75rem;
+        }
+        
+        .font-semibold {
+            font-weight: 600;
+        }
+        
+        .text-gray-800 {
+            color: #1f2937;
+        }
+        
+        .dark .text-gray-200 {
+            color: #e5e7eb;
+        }
+        
+        .list-none {
+            list-style-type: none;
+        }
+        
+        .p-0 {
+            padding: 0;
+        }
+        
+        .text-gray-700 {
+            color: #374151;
+        }
+        
+        .dark .text-gray-300 {
+            color: #d1d5db;
+        }
+        
+        .flex {
+            display: flex;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .py-1 {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+        }
+        
+        .px-3 {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+        
+        .bg-gray-50 {
+            background-color: #f9fafb;
+        }
+        
+        .dark .bg-gray-700 {
+            background-color: #374151;
+        }
+        
+        .rounded-md {
+            border-radius: 0.375rem;
+        }
+        
+        .mb-1 {
+            margin-bottom: 0.25rem;
+        }
+        
+        .truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .pr-2 {
+            padding-right: 0.5rem;
+        }
+        
+        .text-red-500 {
+            color: #ef4444;
+        }
+        
+        .hover\:text-red-700:hover {
+            color: #b91c1c;
+        }
+        
+        .dark .text-red-400 {
+            color: #f87171;
+        }
+        
+        .dark .hover\:text-red-600:hover {
+            color: #dc2626;
+        }
+        
+        .p-1 {
+            padding: 0.25rem;
+        }
+        
+        .h-4 {
+            height: 1rem;
+        }
+        
+        .w-4 {
+            width: 1rem;
+        }
+        
+        .flex-col {
+            flex-direction: column;
+        }
+        
+        .sm\:flex-row {
+            flex-direction: row;
+        }
+        
+        .gap-4 {
+            gap: 1rem;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .space-x-2 > * + * {
+            margin-left: 0.5rem;
+        }
+        
+        .flex-1 {
+            flex: 1 1 0%;
+        }
+        
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        
+        .bg-blue-600 {
+            background-color: #2563eb;
+        }
+        
+        .hover\:bg-blue-700:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .text-white {
+            color: #fff;
+        }
+        
+        .py-2 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        
+        .px-4 {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        .rounded-md {
+            border-radius: 0.375rem;
+        }
+        
+        .shadow-md {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .transition-colors {
+            transition-property: background-color, border-color, color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+        
+        .disabled\:opacity-50:disabled {
+            opacity: 0.5;
+        }
+        
+        .disabled\:cursor-not-allowed:disabled {
+            cursor: not-allowed;
+        }
+        
+        .border {
+            border-width: 1px;
+        }
+        
+        .border-gray-300 {
+            border-color: #d1d5db;
+        }
+        
+        .dark .border-gray-600 {
+            border-color: #4b5563;
+        }
+        
+        .hover\:bg-gray-100:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .dark .hover\:bg-gray-700:hover {
+            background-color: #374151;
+        }
+        
+        .w-full {
+            width: 100%;
+        }
+        
+        .h-2 {
+            height: 0.5rem;
+        }
+        
+        .bg-gray-200 {
+            background-color: #e5e7eb;
+        }
+        
+        .dark .bg-gray-700 {
+            background-color: #374151;
+        }
+        
+        .rounded-full {
+            border-radius: 9999px;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+        
+        .text-red-600 {
+            color: #dc2626;
+        }
+        
+        .text-yellow-600 {
+            color: #ca8a04;
+        }
+        
+        .text-green-600 {
+            color: #16a34a;
+        }
+        
+        .dark .text-red-400 {
+            color: #f87171;
+        }
+        
+        .dark .text-yellow-400 {
+            color: #fbbf24;
+        }
+        
+        .dark .text-green-400 {
+            color: #4ade80;
+        }
+        
+        .space-y-4 > * + * {
+            margin-top: 1rem;
+        }
+        
+        .flex-shrink-0 {
+            flex-shrink: 0;
+        }
+        
+        .bg-green-600 {
+            background-color: #16a34a;
+        }
+        
+        .hover\:bg-green-700:hover {
+            background-color: #15803d;
+        }
+        
+        .mr-2 {
+            margin-right: 0.5rem;
+        }
+        
+        .fixed {
+            position: fixed;
+        }
+        
+        .inset-0 {
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+        
+        .bg-black {
+            background-color: #000;
+        }
+        
+        .bg-opacity-50 {
+            --tw-bg-opacity: 0.5;
+        }
+        
+        .z-50 {
+            z-index: 50;
+        }
+        
+        .flex {
+            display: flex;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .justify-center {
+            justify-content: center;
+        }
+        
+        .bg-white {
+            background-color: #fff;
+        }
+        
+        .dark .bg-gray-800 {
+            background-color: #1f2937;
+        }
+        
+        .rounded-lg {
+            border-radius: 0.5rem;
+        }
+        
+        .max-w-4xl {
+            max-width: 56rem;
+        }
+        
+        .w-\[95vw\] {
+            width: 95vw;
+        }
+        
+        .h-\[80vh\] {
+            height: 80vh;
+        }
+        
+        .overflow-hidden {
+            overflow: hidden;
+        }
+        
+        .text-2xl {
+            font-size: 1.5rem;
+            line-height: 2rem;
+        }
+        
+        .overflow-auto {
+            overflow: auto;
+        }
+        
+        .h-\[calc\(80vh-100px\)\] {
+            height: calc(80vh - 100px);
+        }
+        
+        .border {
+            border-width: 1px;
+        }
+        
+        .border-gray-200 {
+            border-color: #e5e7eb;
+        }
+        
+        .dark .border-gray-700 {
+            border-color: #374151;
+        }
+        
+        .rounded-md {
+            border-radius: 0.375rem;
+        }
+        
+        .min-w-full {
+            min-width: 100%;
+        }
+        
+        .divide-y > * + * {
+            border-top-width: 1px;
+        }
+        
+        .divide-gray-200 > * + * {
+            border-color: #e5e7eb;
+        }
+        
+        .dark .divide-gray-700 > * + * {
+            border-color: #374151;
+        }
+        
+        .bg-gray-50 {
+            background-color: #f9fafb;
+        }
+        
+        .dark .bg-gray-700 {
+            background-color: #374151;
+        }
+        
+        .sticky {
+            position: sticky;
+        }
+        
+        .top-0 {
+            top: 0;
+        }
+        
+        .px-4 {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        .py-2 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        
+        .text-left {
+            text-align: left;
+        }
+        
+        .text-xs {
+            font-size: 0.75rem;
+            line-height: 1rem;
+        }
+        
+        .uppercase {
+            text-transform: uppercase;
+        }
+        
+        .tracking-wider {
+            letter-spacing: 0.05em;
+        }
+        
+        .bg-white {
+            background-color: #fff;
+        }
+        
+        .dark .bg-gray-800 {
+            background-color: #1f2937;
+        }
+        
+        .whitespace-nowrap {
+            white-space: nowrap;
+        }
+        
+        .text-sm {
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
+        
+        .bg-yellow-100 {
+            background-color: #fef9c3;
+        }
+        
+        .dark .bg-yellow-900 {
+            background-color: #713f12;
+        }
+        
+        .border-y-2 {
+            border-top-width: 2px;
+            border-bottom-width: 2px;
+        }
+        
+        .border-yellow-300 {
+            border-color: #fde047;
+        }
+        
+        .dark .border-yellow-700 {
+            border-color: #a16207;
+        }
+        
+        .bg-gray-50 {
+            background-color: #f9fafb;
+        }
+        
+        .dark .bg-gray-800 {
+            background-color: #1f2937;
+        }
+        
+        .bg-white {
+            background-color: #fff;
+        }
+        
+        .dark .bg-gray-900 {
+            background-color: #111827;
+        }
+        
+        .italic {
+            font-style: italic;
+        }
+        
+        .p-4 {
+            padding: 1rem;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .dark ::-webkit-scrollbar-track {
+            background: #374151;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c5c5c5;
+            border-radius: 4px;
+        }
+        
+        .dark ::-webkit-scrollbar-thumb {
+            background: #6b7280;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a5a5a5;
+        }
+        
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useCallback, useRef, useEffect, forwardRef } = React;
+
+        // Icons
+        const FileUp = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                <path d="M12 12v6" />
+                <path d="m15 15-3-3-3 3" />
+            </svg>
+        );
+
+        const Download = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" x2="12" y1="15" y2="3" />
+            </svg>
+        );
+
+        const Eye = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+            </svg>
+        );
+
+        const XCircle = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <circle cx="12" cy="12" r="10" />
+                <path d="m15 9-6 6" />
+                <path d="m9 9 6 6" />
+            </svg>
+        );
+
+        // Button Component
+        const Button = forwardRef(({ className, variant, size, asChild = false, ...props }, ref) => {
+            const baseClasses = "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
+            const variants = {
+                default: "bg-primary text-primary-foreground hover:bg-primary/90",
+                destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+                outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+                secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                ghost: "hover:bg-accent hover:text-accent-foreground",
+                link: "text-primary underline-offset-4 hover:underline",
+            };
+            const sizes = {
+                default: "h-10 px-4 py-2",
+                sm: "h-9 rounded-md px-3",
+                lg: "h-11 rounded-md px-8",
+                icon: "h-10 w-10",
+            };
+            const Comp = asChild ? 'span' : 'button';
+            return (
+                <Comp
+                    className={`${baseClasses} ${variants[variant || 'default']} ${sizes[size || 'default']} ${className || ''}`}
+                    ref={ref}
+                    {...props}
+                />
+            );
+        });
+        Button.displayName = "Button";
+
+        // Input Component
+        const Input = forwardRef(({ className, type, ...props }, ref) => {
+            return (
+                <input
+                    type={type}
+                    className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className || ''}`}
+                    ref={ref}
+                    {...props}
+                />
+            );
+        });
+        Input.displayName = "Input";
+
+        // Card Components
+        const Card = forwardRef(({ className, ...props }, ref) => (
+            <div
+                ref={ref}
+                className={`rounded-xl border bg-card text-card-foreground shadow ${className || ''}`}
+                {...props}
+            />
+        ));
+        Card.displayName = "Card";
+
+        const CardHeader = forwardRef(({ className, ...props }, ref) => (
+            <div
+                ref={ref}
+                className={`flex flex-col space-y-1.5 p-6 ${className || ''}`}
+                {...props}
+            />
+        ));
+        CardHeader.displayName = "CardHeader";
+
+        const CardTitle = forwardRef(({ className, ...props }, ref) => (
+            <h3
+                ref={ref}
+                className={`font-semibold leading-none tracking-tight ${className || ''}`}
+                {...props}
+            />
+        ));
+        CardTitle.displayName = "CardTitle";
+
+        const CardDescription = forwardRef(({ className, ...props }, ref) => (
+            <p
+                ref={ref}
+                className={`text-sm text-muted-foreground ${className || ''}`}
+                {...props}
+            />
+        ));
+        CardDescription.displayName = "CardDescription";
+
+        const CardContent = forwardRef(({ className, ...props }, ref) => (
+            <div ref={ref} className={`p-6 pt-0 ${className || ''}`} {...props} />
+        ));
+        CardContent.displayName = "CardContent";
+
+        // Table Components
+        const Table = forwardRef(({ className, ...props }, ref) => (
+            <div className="relative w-full overflow-auto">
+                <table
+                    ref={ref}
+                    className={`w-full caption-bottom text-sm ${className || ''}`}
+                    {...props}
+                />
+            </div>
+        ));
+        Table.displayName = "Table";
+
+        const TableHeader = forwardRef(({ className, ...props }, ref) => (
+            <thead ref={ref} className={`[&_tr]:border-b ${className || ''}`} {...props} />
+        ));
+        TableHeader.displayName = "TableHeader";
+
+        const TableBody = forwardRef(({ className, ...props }, ref) => (
+            <tbody ref={ref} className={`[&_tr:last-child]:border-0 ${className || ''}`} {...props} />
+        ));
+        TableBody.displayName = "TableBody";
+
+        const TableRow = forwardRef(({ className, ...props }, ref) => (
+            <tr
+                ref={ref}
+                className={`border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted ${className || ''}`}
+                {...props}
+            />
+        ));
+        TableRow.displayName = "TableRow";
+
+        const TableHead = forwardRef(({ className, ...props }, ref) => (
+            <th
+                ref={ref}
+                className={`h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 ${className || ''}`}
+                {...props}
+            />
+        ));
+        TableHead.displayName = "TableHead";
+
+        const TableCell = forwardRef(({ className, ...props }, ref) => (
+            <td
+                ref={ref}
+                className={`p-4 align-middle [&:has([role=checkbox])]:pr-0 ${className || ''}`}
+                {...props}
+            />
+        ));
+        TableCell.displayName = "TableCell";
+
+        // Progress Component
+        const Progress = forwardRef(({ className, value, ...props }, ref) => (
+            <div
+                ref={ref}
+                className={`relative h-4 w-full overflow-hidden rounded-full bg-secondary ${className || ''}`}
+                {...props}
+            >
+                <div
+                    className="h-full w-full flex-1 bg-primary transition-all"
+                    style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
+                />
+            </div>
+        ));
+        Progress.displayName = "Progress";
+
+        // Main App Component
+        const App = () => {
+            const [uploadedFiles, setUploadedFiles] = useState([]);
+            const [processing, setProcessing] = useState(false);
+            const [progress, setProgress] = useState(0);
+            const [mergedData, setMergedData] = useState([]);
+            const [excelFileName, setExcelFileName] = useState('merged_csv_data.xlsx');
+            const [message, setMessage] = useState('Ready to upload files');
+            const [showPreview, setShowPreview] = useState(false);
+            const [csvDelimiter, setCsvDelimiter] = useState(',');
+            const [hasHeaders, setHasHeaders] = useState(true);
+            const fileInputRef = useRef(null);
+
+            // Handle file selection via input or drag-and-drop
+            const handleFileChange = useCallback((event) => {
+                const files = event.target.files ? Array.from(event.target.files) : Array.from(event.dataTransfer.files);
+                setUploadedFiles((prevFiles) => {
+                    const newFiles = files.filter(file => !prevFiles.some(p => p.name === file.name && p.size === file.size));
+                    if (newFiles.length > 0) {
+                        setMessage(`Added ${newFiles.length} file(s).`);
+                    }
+                    return [...prevFiles, ...newFiles];
+                });
+            }, []);
+
+            // Handle drag over event for drag-and-drop
+            const handleDragOver = useCallback((event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                event.dataTransfer.dropEffect = 'copy';
+            }, []);
+
+            // Handle file drop event for drag-and-drop
+            const handleDrop = useCallback((event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                handleFileChange(event);
+            }, [handleFileChange]);
+
+            // Remove a specific file from the uploaded list
+            const removeFile = useCallback((fileToRemove) => {
+                setUploadedFiles(prevFiles => prevFiles.filter(file => file !== fileToRemove));
+                setMessage(`Removed ${fileToRemove.name}.`);
+            }, []);
+
+            // Process all uploaded files
+            const processFiles = useCallback(async () => {
+                if (uploadedFiles.length === 0) {
+                    setMessage('Please upload at least one ZIP or GZ file.');
+                    return;
+                }
+
+                setProcessing(true);
+                setProgress(0);
+                setMergedData([]);
+                setMessage('Starting file processing...');
+
+                let allCsvFiles = [];
+                let processedCount = 0;
+
+                try {
+                    for (const file of uploadedFiles) {
+                        const fileExtension = file.name.split('.').pop().toLowerCase();
+                        let extractedFiles = [];
+
+                        if (fileExtension === 'zip') {
+                            setMessage(`Unzipping ${file.name}...`);
+                            if (typeof JSZip === 'undefined') {
+                                throw new Error('JSZip library is not loaded. Please refresh the page.');
+                            }
+                            const zip = await new JSZip().loadAsync(file);
+                            const zipCsvEntries = [];
+                            zip.forEach((relativePath, zipEntry) => {
+                                if (!zipEntry.dir && relativePath.toLowerCase().endsWith('.csv')) {
+                                    zipCsvEntries.push({
+                                        name: relativePath,
+                                        asyncContent: zipEntry.async('string')
+                                    });
+                                }
+                            });
+                            if (zipCsvEntries.length === 0) {
+                                setMessage(`Warning: No CSV files found in ${file.name}.`);
+                            }
+                            extractedFiles = zipCsvEntries;
+
+                        } else if (fileExtension === 'gz') {
+                            setMessage(`Decompressing ${file.name}...`);
+                            if (typeof pako === 'undefined') {
+                                throw new Error('pako library is not loaded. Please refresh the page.');
+                            }
+                            const compressedData = await file.arrayBuffer();
+                            const decompressed = pako.ungzip(new Uint8Array(compressedData), { to: 'string' });
+                            if (file.name.toLowerCase().endsWith('.csv.gz') || file.name.toLowerCase().includes('.csv')) {
+                                extractedFiles.push({
+                                    name: file.name.replace(/\.gz$/, ''),
+                                    asyncContent: Promise.resolve(decompressed)
+                                });
+                            } else {
+                                setMessage(`Skipping ${file.name}: GZ files are expected to contain CSV content (e.g., .csv.gz).`);
+                            }
+                        } else {
+                            setMessage(`Skipping ${file.name}: Unsupported file type. Only .zip and .gz are supported.`);
+                        }
+
+                        for (const extractedFile of extractedFiles) {
+                            const content = await extractedFile.asyncContent;
+                            allCsvFiles.push({ filename: extractedFile.name, content: content });
+                        }
+
+                        processedCount++;
+                        setProgress(Math.round((processedCount / uploadedFiles.length) * 100));
+                    }
+
+                    // Sort CSV files by filename
+                    allCsvFiles.sort((a, b) => a.filename.localeCompare(b.filename));
+
+                    let combinedData = [];
+                    let firstDatasetProcessed = false;
+                    let excelHeaders = [];
+
+                    // Merge CSVs and add empty rows
+                    for (const csvFile of allCsvFiles) {
+                        if (!firstDatasetProcessed && hasHeaders) {
+                            // For the very first CSV, if headers are enabled, parse with header: true
+                            if (typeof Papa === 'undefined') {
+                                throw new Error('PapaParse library (Papa) is not loaded. Please refresh the page.');
+                            }
+                            const parsed = Papa.parse(csvFile.content, {
+                                header: true,
+                                skipEmptyLines: true,
+                                delimiter: csvDelimiter,
+                            });
+
+                            if (parsed.errors.length > 0) {
+                                console.warn(`Errors parsing headers in ${csvFile.filename}:`, parsed.errors);
+                                setMessage(`Warning: Errors found in ${csvFile.filename} headers. Merging may be incomplete.`);
+                            }
+
+                            if (parsed.meta.fields && parsed.meta.fields.length > 0) {
+                                excelHeaders = parsed.meta.fields;
+                                combinedData.push(excelHeaders);
+                            } else {
+                                setMessage(`Warning: Could not parse headers from ${csvFile.filename}. Treating as no headers.`);
+                                setHasHeaders(false);
+                                const fallbackParsed = Papa.parse(csvFile.content, {
+                                    header: false,
+                                    skipEmptyLines: true,
+                                    delimiter: csvDelimiter,
+                                });
+                                if (fallbackParsed.data.length > 0) {
+                                    combinedData = combinedData.concat(fallbackParsed.data);
+                                }
+                            }
+                            if (parsed.data.length > 0) {
+                                combinedData = combinedData.concat(parsed.data.map(row => excelHeaders.map(header => row[header])));
+                            }
+                            firstDatasetProcessed = true;
+
+                        } else {
+                            if (!firstDatasetProcessed) {
+                                combinedData.push([]);
+                                combinedData.push([]);
+                            }
+
+                            if (typeof Papa === 'undefined') {
+                                throw new Error('PapaParse library (Papa) is not loaded. Please refresh the page.');
+                            }
+                            const parsed = Papa.parse(csvFile.content, {
+                                header: false,
+                                skipEmptyLines: true,
+                                delimiter: csvDelimiter,
+                            });
+
+                            if (parsed.errors.length > 0) {
+                                console.warn(`Errors parsing ${csvFile.filename}:`, parsed.errors);
+                                setMessage(`Warning: Errors found in ${csvFile.filename}. Merging may be incomplete.`);
+                            }
+
+                            let dataToAdd = parsed.data;
+                            if (hasHeaders && dataToAdd.length > 0) {
+                                dataToAdd = dataToAdd.slice(1);
+                            }
+                            
+                            if (dataToAdd.length > 0) {
+                                combinedData = combinedData.concat(dataToAdd);
+                            }
+                            firstDatasetProcessed = true;
+                        }
+                    }
+
+                    setMergedData(combinedData);
+                    setMessage('All CSV files processed and merged successfully! Ready for preview or download.');
+                } catch (error) {
+                    setMessage(`Error processing files: ${error.message}. Please try again.`);
+                    console.error('Processing error:', error);
+                    setMergedData([]);
+                } finally {
+                    setProcessing(false);
+                    setProgress(0);
+                }
+            }, [uploadedFiles, csvDelimiter, hasHeaders]);
+
+            // Download the merged Excel file
+            const downloadExcel = useCallback(() => {
+                if (mergedData.length === 0) {
+                    setMessage('No data to download. Please process files first.');
+                    return;
+                }
+
+                if (typeof XLSX === 'undefined') {
+                    setMessage('Excel library not loaded. Please refresh the page.');
+                    return;
+                }
+
+                try {
+                    const ws = XLSX.utils.aoa_to_sheet(mergedData);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, 'Merged CSVs');
+
+                    // Convert workbook to binary string
+                    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+                    // Create a Blob and trigger download
+                    const s2ab = (s) => {
+                        const buf = new ArrayBuffer(s.length);
+                        const view = new Uint8Array(buf);
+                        for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                        return buf;
+                    };
+
+                    const blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = excelFileName.endsWith('.xlsx') ? excelFileName : `${excelFileName}.xlsx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    setMessage('Excel file downloaded successfully!');
+                } catch (error) {
+                    setMessage(`Error downloading Excel file: ${error.message}`);
+                    console.error('Download error:', error);
+                }
+            }, [mergedData, excelFileName]);
+
+            // Clear all uploaded files and processed data
+            const clearAll = useCallback(() => {
+                setUploadedFiles([]);
+                setMergedData([]);
+                setProcessing(false);
+                setProgress(0);
+                setMessage('All data cleared. Ready for new uploads.');
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+            }, []);
+
+            return (
+                <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 sm:p-6 lg:p-8 flex items-center justify-center">
+                    <div className="w-full max-w-4xl">
+                        <Card className="w-full rounded-lg shadow-xl dark:bg-gray-800 border-none">
+                            <CardHeader className="text-center p-6">
+                                <CardTitle className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                                    CSV Merger & Excel Exporter
+                                </CardTitle>
+                                <CardDescription className="text-gray-600 dark:text-gray-400 mt-2">
+                                    Upload ZIP/GZ files containing CSVs, merge them, and download as Excel.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="p-6 space-y-6">
+                                {/* File Upload Area */}
+                                <div
+                                    className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
+                                    onDragOver={handleDragOver}
+                                    onDrop={handleDrop}
+                                    onClick={() => fileInputRef.current?.click()}
+                                    role="button"
+                                    aria-label="Drag and drop files or click to upload"
+                                    tabIndex="0"
+                                >
+                                    <FileUp className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 mb-4" />
+                                    <p className="text-lg font-medium text-gray-700 dark:text-gray-300">
+                                        Drag & drop your ZIP/GZ files here, or click to select
+                                    </p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                        (Supports .zip, .gz containing .csv files)
+                                    </p>
+                                    <Input
+                                        type="file"
+                                        multiple
+                                        accept=".zip,.gz"
+                                        onChange={handleFileChange}
+                                        className="hidden"
+                                        ref={fileInputRef}
+                                        aria-label="Upload ZIP or GZ files"
+                                    />
+                                </div>
+
+                                {/* Uploaded Files List */}
+                                {uploadedFiles.length > 0 && (
+                                    <div className="space-y-3" aria-live="polite">
+                                        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Uploaded Files:</h3>
+                                        <ul className="list-none p-0 text-gray-700 dark:text-gray-300">
+                                            {uploadedFiles.map((file, index) => (
+                                                <li key={index} className="flex items-center justify-between py-1 px-3 bg-gray-50 dark:bg-gray-700 rounded-md mb-1">
+                                                    <span className="truncate pr-2" title={file.name}>{file.name} ({Math.round(file.size / 1024)} KB)</span>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => removeFile(file)}
+                                                        className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-600 p-1"
+                                                        aria-label={`Remove file ${file.name}`}
+                                                    >
+                                                        <XCircle className="h-4 w-4" />
+                                                    </Button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {/* CSV Options */}
+                                <div className="flex flex-col sm:flex-row gap-4 items-center">
+                                    <div className="flex items-center space-x-2 flex-1">
+                                        <input
+                                            type="checkbox"
+                                            id="hasHeaders"
+                                            checked={hasHeaders}
+                                            onChange={(e) => setHasHeaders(e.target.checked)}
+                                            aria-checked={hasHeaders}
+                                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        />
+                                        <label htmlFor="hasHeaders" className="text-gray-700 dark:text-gray-300 cursor-pointer">
+                                            First CSV row contains headers
+                                        </label>
+                                    </div>
+                                    <div className="flex items-center space-x-2 flex-1">
+                                        <label htmlFor="csvDelimiter" className="text-gray-700 dark:text-gray-300">
+                                            CSV Delimiter:
+                                        </label>
+                                        <select 
+                                            id="csvDelimiter"
+                                            value={csvDelimiter} 
+                                            onChange={(e) => setCsvDelimiter(e.target.value)}
+                                            className="w-[180px] h-10 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            <option value=",">Comma (,)</option>
+                                            <option value=";">Semicolon (;)</option>
+                                            <option value="\t">Tab (\t)</option>
+                                            <option value="|">Pipe (|)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Processing Controls and Progress */}
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                    <Button
+                                        onClick={processFiles}
+                                        disabled={uploadedFiles.length === 0 || processing}
+                                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        aria-label={processing ? 'Processing files' : 'Process uploaded files'}
+                                    >
+                                        {processing ? 'Processing...' : 'Process Files'}
+                                    </Button>
+                                    <Button
+                                        onClick={clearAll}
+                                        variant="outline"
+                                        className="flex-1 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-semibold py-2 px-4 rounded-md shadow-md transition-colors"
+                                        aria-label="Clear all uploaded files and processed data"
+                                    >
+                                        Clear All
+                                    </Button>
+                                </div>
+
+                                {processing && (
+                                    <div className="w-full" role="progressbar" aria-valuenow={progress} aria-valuemin="0" aria-valuemax="100">
+                                        <Progress value={progress} className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                                        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">{progress}%</p>
+                                    </div>
+                                )}
+
+                                {/* Messages */}
+                                {message && (
+                                    <p className={`text-center text-sm font-medium ${message.includes('Error') ? 'text-red-600' : message.includes('Warning') ? 'text-yellow-600' : 'text-green-600'} dark:${message.includes('Error') ? 'text-red-400' : message.includes('Warning') ? 'text-yellow-400' : 'text-green-400'}`}
+                                       role="status" aria-live="polite">
+                                        {message}
+                                    </p>
+                                )}
+
+                                {/* Excel File Renaming and Download */}
+                                {mergedData.length > 0 && (
+                                    <div className="space-y-4">
+                                        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Download Excel:</h3>
+                                        <div className="flex flex-col sm:flex-row gap-4 items-center">
+                                            <Input
+                                                type="text"
+                                                value={excelFileName}
+                                                onChange={(e) => setExcelFileName(e.target.value)}
+                                                placeholder="Enter Excel file name"
+                                                className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
+                                                aria-label="Excel file name"
+                                            />
+                                            <Button
+                                                onClick={downloadExcel}
+                                                className="flex-shrink-0 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition-colors"
+                                                aria-label="Download merged Excel file"
+                                            >
+                                                <Download className="mr-2 h-4 w-4" /> Download Excel
+                                            </Button>
+                                            <Button
+                                                onClick={() => setShowPreview(true)}
+                                                variant="outline"
+                                                className="flex-shrink-0 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-semibold py-2 px-4 rounded-md shadow-md transition-colors"
+                                                aria-label="Preview merged data"
+                                            >
+                                                <Eye className="mr-2 h-4 w-4" /> Preview Data
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Preview Modal */}
+                    {showPreview && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-[95vw] h-[80vh] overflow-hidden">
+                                <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                                    <h2 className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                                        Data Preview
+                                    </h2>
+                                    <button 
+                                        onClick={() => setShowPreview(false)}
+                                        className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                        aria-label="Close preview"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div className="overflow-auto h-[calc(80vh-60px)] border border-gray-200 dark:border-gray-700 rounded-md" tabIndex="0" role="region" aria-label="Merged data preview table">
+                                    {mergedData.length > 0 ? (
+                                        <Table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                            <TableHeader className="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
+                                                <TableRow>
+                                                    {mergedData[0] && mergedData[0].map((header, index) => (
+                                                        <TableHead key={index} className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                            {header}
+                                                        </TableHead>
+                                                    ))}
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                                {mergedData.map((row, rowIndex) => (
+                                                    <TableRow key={rowIndex} className={
+                                                        row.length === 0 ? 'bg-yellow-100 dark:bg-yellow-900 border-y-2 border-yellow-300 dark:border-yellow-700' :
+                                                        rowIndex % 2 === 0 ? 'bg-gray-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-900'
+                                                    }>
+                                                        {row.length === 0 ? (
+                                                            <TableCell colSpan={mergedData[0]?.length || 1} className="px-4 py-2 text-center text-sm text-gray-500 dark:text-gray-400 italic">
+                                                                (Empty Row)
+                                                            </TableCell>
+                                                        ) : (
+                                                            row.map((cell, cellIndex) => (
+                                                                <TableCell key={cellIndex} className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
+                                                                    {cell}
+                                                                </TableCell>
+                                                            ))
+                                                        )}
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    ) : (
+                                        <p className="p-4 text-center text-gray-500 dark:text-gray-400">No data to preview. Please process files first.</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
