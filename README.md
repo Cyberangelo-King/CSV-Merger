@@ -1,33 +1,23 @@
-# CSV Merger & Excel Exporter
+# CSV Merger
 
+A privacy-first browser utility for merging CSV files from ZIP/GZ archives and exporting the result as Excel.
 
+## Product promise
+**Your files stay in your browser.** The application is designed around local processing so ordinary data-cleaning jobs do not require an upload service.
 
-A powerful web application that allows you to upload ZIP/GZ files containing CSV data, merge them with customizable options, and export the results as an Excel file. All processing happens directly in your browser - no server uploads required!
+## Workflow
+**Import → inspect → configure → merge → validate → export.**
 
 ## Features
+- ZIP and GZ input
+- Delimiter/header controls
+- Data preview
+- XLSX export
+- Responsive UI
+- Light/dark themes
 
-- 🗂️ **Compressed File Support**: Upload ZIP and GZ files containing CSV data
-- ⚙️ **Configurable Processing**: Choose delimiter and header options
-- 🔄 **Automatic Merging**: Combine CSV files from multiple archives
-- 📊 **Data Preview**: View merged data before downloading
-- 📥 **Excel Export**: Download results as XLSX files
-- 🌓 **Dark/Light Mode**: Works with your preferred theme
-- 📱 **Responsive Design**: Works on desktop and mobile devices
-- 🔒 **Privacy First**: All processing happens locally in your browser
+## Engineering priorities
+Large-file resilience, useful error messages, predictable exports, accessibility and zero unnecessary network transfer.
 
-## How to Use
-
-1. **Upload Files**: Drag and drop or click to select ZIP/GZ files
-2. **Configure Options**: Set delimiter and header preferences
-3. **Process Files**: Click "Process Files" to merge your CSVs
-4. **Preview/Download**: View the merged data and download as Excel
-
-## Live Demo
-
-https://cyberangelo-king.github.io/CSV-Merger/
-
-
-## Installation
-
-No installation needed! Simply open the HTML file in any modern browser:
-
+## Status
+Small, focused utility. The broader Excel workbench now lives in excel-wizard-fusion.
